@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import './App.css';
-import { GoogleMap, useJsApiLoader, StandaloneSearchBox } from "@react-google-maps/api";
+import {GoogleMap, useJsApiLoader, StandaloneSearchBox, Circle} from "@react-google-maps/api";
 
 const divStyle = {
   width: '1000px',
@@ -17,6 +17,27 @@ const mapCentre = {
   lng: -114.0719
 };
 
+const circleOptions = {
+  strokeColor: '#FF0000',
+  strokeOpacity: 0.8,
+  strokeWeight: 2,
+  fillColor: '#FF0000',
+  fillOpacity: 0.35,
+  clickable: false,
+  draggable: false,
+  editable: false,
+  visible: true,
+  zIndex: 1
+}
+
+const onLoad = circle => {
+  console.log('Circle onLoad circle: ', circle)
+}
+
+const onUnmount = circle => {
+  console.log('Circle onUnmount circle: ', circle)
+}
+
 
 function App() {
   const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAP_API_KEY
@@ -29,6 +50,7 @@ function App() {
   const [map, setMap] = useState(null)
   const [address, setAddress] = useState(null)
   const [radius, setRadius] = useState(1000)
+  const [circles, setCircles] = useState([])
 
   const onLoad = useCallback(function callback(map) {
     // This is just an example of getting and using the map instance!!! don't just blindly copy!
@@ -45,18 +67,22 @@ function App() {
   const createAddressQuery = (str) => (str.split(' ').join('+'))
 
   const handleSubmit = (event) => {
-    if(!isLoaded) {
-      return
-    }
     event.preventDefault();
-    console.log(address, radius)
-    let request = {
-      query: "Calgary International Airport",
-      fields: ["name", "geometry"]
-    };
 
     fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${createAddressQuery(address)}&key=${googleMapsApiKey}`)
-        .then((res) => res.json()).then((data) => console.log(data))
+        .then((res) => res.json()).then(({ results }) => {
+          if(results.length){
+            setCircles([...circles, {...results[0].geometry.location, radius }])
+          }
+    })
+  }
+
+  const onLoadCircle = circle => {
+    console.log('Circle onLoad circle: ', circle)
+  }
+
+  const onUnmountCircle = circle => {
+    console.log('Circle onUnmount circle: ', circle)
   }
 
   return isLoaded ? (
@@ -70,6 +96,8 @@ function App() {
               onUnmount={onUnmount}
           >
             { /* Child components, such as markers, info windows, etc. */ }
+            {(circles).map((circleData) => (<Circle center={circleData} options={{...circleData, radius: circleData.radius}}
+            ></Circle>))}
             <></>
           </GoogleMap>
           <form onSubmit={handleSubmit}>

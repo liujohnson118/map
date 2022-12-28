@@ -1,46 +1,26 @@
 import React, { useState, useCallback } from 'react';
 import './App.css';
-import {GoogleMap, useJsApiLoader, Circle} from "@react-google-maps/api";
 import GoogleMapsService from "./services/GoogleMapsService";
 import GoogleMapDisplay from "./components/GoogleMapDisplay";
 import DistanceCircleForm from "./components/DistanceCircleForm";
+import CirclesTable from "./components/CirclesTable";
 
-const floatChildStyle = {
-  display: 'inline-block',
+const floatLeftChildStyle = {
   border: '1px solid red',
-  width: '650px',
-  margin: '20px'
+  width: '40%',
+  float: 'left'
 };
 
-const floatContainerStyle = {
-  border: '3px solid #fff',
-  width: '1600px',
-  height: '1600px',
-}
-
-const mapContainerStyle = {
-  width: '500px',
-  height: '500px'
+const floatRightChildStyle = {
+  border: '1px solid red',
+  width: '40%',
+  float: 'right'
 };
 
 const mapCentre = {
   lat: 51.0447,
   lng: -114.0719
 };
-
-const circleOptions = {
-  strokeColor: '#FF0000',
-  strokeOpacity: 0.8,
-  strokeWeight: 2,
-  fillColor: '#FF0000',
-  fillOpacity: 0.35,
-  clickable: false,
-  draggable: false,
-  editable: false,
-  visible: true,
-  zIndex: 1
-}
-
 
 function App() {
   const [map, setMap] = useState(null)
@@ -53,9 +33,10 @@ function App() {
     map.fitBounds(bounds);
 
     setMap(map)
+    map.setZoom(7)
   }, [])
 
-  const onUnmount = useCallback(function callback(map) {
+  const onUnmount = useCallback(function callback() {
     setMap(null)
   }, [])
 
@@ -70,15 +51,17 @@ function App() {
           }
     })
   }
-
   return (
       <>
-        <div style={floatContainerStyle} className={'float-container'}>
-          <div style={floatChildStyle} className={'float-child'}>
+        <div>
+          <div style={floatLeftChildStyle}>
             <GoogleMapDisplay circles={circles} onLoad={onLoad} onUnmount={onUnmount} />)
           </div>
-          <div style={floatChildStyle} className={'float-child'}>
+          <div style={floatRightChildStyle}>
             <DistanceCircleForm setAddress={setAddress} setRadius={setRadius} onSubmit={onSubmit} />
+          </div>
+          <div style={floatRightChildStyle}>
+            <CirclesTable circles={circles}/>
           </div>
         </div>
       </>

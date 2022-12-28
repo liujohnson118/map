@@ -44,7 +44,7 @@ function GoogleMapDisplay({ circles, onLoad, onUnmount }) {
                 mapCentre={mapCentre}
                 onLoad={onLoad}
                 onUnmount={onUnmount}
-                zoom={1}
+                zoom={7}
             >
                 {(circles)
                     .map((circleData) => (<Circle center={circleData} options={{...circleOptions, radius: circleData.radius}}
